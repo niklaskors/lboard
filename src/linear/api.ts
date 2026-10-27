@@ -7,7 +7,7 @@ import type { Issue, Project, Sprint, State, Transition, User } from "./types.ts
 /** What lboard asks of every issue. */
 export const ISSUE_FIELDS = `id identifier title updatedAt priority estimate
   state { id name } assignee { id name email } parent { identifier }
-  project { id name } labels { nodes { id name } }`;
+  project { id name } labels(first: 20) { nodes { id name } }`;
 
 export interface IssueNode {
   id: string;
@@ -86,11 +86,11 @@ export async function loadTeam(key: string): Promise<Team> {
   const res = await gql<Answer>(`query Team($key: String!) {
     viewer { id name email }
     organization { urlKey }
-    teams(filter: { key: { eqIgnoreCase: $key } }) {
+    teams(first: 1, filter: { key: { eqIgnoreCase: $key } }) {
       nodes {
         id key name cyclesEnabled issueEstimationType
-        states(first: 100) { nodes { id name type position } }
-        cycles(first: 50, filter: { endsAt: { gt: ${JSON.stringify(new Date().toISOString())} } }) {
+        states(first: 50) { nodes { id name type position } }
+        cycles(first: 20, filter: { endsAt: { gt: ${JSON.stringify(new Date().toISOString())} } }) {
           nodes { id number name startsAt endsAt isActive }
         }
       }
